@@ -3,8 +3,15 @@ package cl.scloud.editor.paginas.main;
 public class Main {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		
+		final Main main = new Main();
+		
+		main.editarTemplateBusinessCasual();
+		
+	}
 
+	private void editarTemplateBusinessCasual() {
+		
 	}
 
 }
