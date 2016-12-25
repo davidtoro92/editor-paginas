@@ -15,6 +15,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import cl.scloud.editor.paginas.enums.OpcionesMenuNavegacionEnum;
+import cl.scloud.editor.paginas.util.EditorPaginasUtil;
 
 public class TemplateBusinessCasual {
 
@@ -36,6 +37,9 @@ public class TemplateBusinessCasual {
 	private void generarNuevaPagina(final ArrayList<String> paginas) {
 
 		final Scanner sc = new Scanner(System.in);
+		Map<String, String> iniciosTituloPaginaStr = this.solicitarTituloDireccionPagina(sc);
+		Map<String, String> opcionesMenuStr = this.solicitarOpcionesMenu(sc);
+		
 		try {
 			for (String pagina : paginas) {
 				
@@ -44,15 +48,14 @@ public class TemplateBusinessCasual {
 				File input = new File(contexto + pagina);
 				Document doc = Jsoup.parse(input, "UTF-8");
 				
-				this.editarTitulosTemplate(sc, doc);
-				Map<String, String> opcionesMenuStr = this.solicitarOpcionesMenu(sc);
+				this.editarTitulosTemplate(sc, doc, iniciosTituloPaginaStr);
 				this.editarMenuesTemplate(sc, doc, opcionesMenuStr);
 				
-				LOGGER.debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-				LOGGER.debug(doc.toString());
-				LOGGER.debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+				LOGGER.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+				LOGGER.info(doc.toString());
+				LOGGER.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 				
-				/*escribir archivo con FileInputStream :D*/
+				EditorPaginasUtil.persistirEdicionPagina(input, doc.toString());
 			}
 
 		} catch (IOException e) {
@@ -63,6 +66,42 @@ public class TemplateBusinessCasual {
 		}
 	}
 	
+	private Map<String, String> solicitarTituloDireccionPagina(Scanner sc) {
+		
+		System.out.print("Ingresa el titulo de la pagina: ");
+		String titulo = sc.nextLine();
+		System.out.print("Ingresa el brand de la pagina: ");
+		String brand = sc.nextLine();
+		System.out.print("Ingresa el brand mobile de la pagina: ");
+		String brandMobile = sc.nextLine();
+		System.out.print("Ingresa el pie de brand: ");
+		String pieBrand = sc.nextLine();
+		
+		Map<String, String> opcionesMenuStr = new HashMap<>();
+		
+		opcionesMenuStr.put("titulo", titulo);
+		opcionesMenuStr.put("brand", brand);
+		opcionesMenuStr.put("brandMobile", brandMobile);
+		opcionesMenuStr.put("pieBrand", pieBrand);
+		
+		return opcionesMenuStr;
+		
+	}
+	
+	private void editarTitulosTemplate(final Scanner sc, Document doc, final Map<String, String> iniciosTituloPaginaStr) {
+		Element tituloPagina = doc.getElementById("titulo-pagina");
+		tituloPagina.text(iniciosTituloPaginaStr.get("titulo"));
+		
+		Element brand = doc.getElementById("brand-pagina");
+		brand.text(iniciosTituloPaginaStr.get("brand"));
+		
+		Element brandMobile = doc.getElementById("brand-pagina-mob");
+		brandMobile.text(iniciosTituloPaginaStr.get("brandMobile"));
+		
+		Element pieBrand = doc.getElementById("pie-brand-pagina");
+		pieBrand.text(iniciosTituloPaginaStr.get("pieBrand"));
+	}
+
 	private Map<String, String> solicitarOpcionesMenu(final Scanner sc) {
 		
 		System.out.print("Ingresa el nuevo nombre para el menu HOME: ");
@@ -82,11 +121,6 @@ public class TemplateBusinessCasual {
 		opcionesMenuStr.put("CONTACT", contact);
 		
 		return opcionesMenuStr;
-	}
-
-	private void editarTitulosTemplate(final Scanner sc, Document doc) {
-		//titulo-pagina
-
 	}
 
 	private void editarMenuesTemplate(final Scanner sc, Document doc, final Map<String, String> opcionesMenuStr) throws IOException {
